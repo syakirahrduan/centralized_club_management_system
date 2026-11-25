@@ -23,9 +23,30 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        // If Member or Club Admin is selected, redirect to blank page (groupmates' part)
-        if (in_array($request->role, ['member', 'club_admin'])) {
+        // If Member is selected, redirect to blank page (groupmates' part)
+        if ($request->role === 'member') {
             return redirect()->route('portal.placeholder');
+        }
+
+        // Club Admin authentication (supports Email or Staff ID)
+        if ($request->role === 'club_admin') {
+            $user = \App\Models\User::where('role', 'club_admin')
+                -> where(function ($query) use ($request) {
+                    $query->where('email', $request->login_id)
+                    ->orWhere('staff_id', $request->login_id);
+                })
+                ->first();
+
+            if ($user && \Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
+                \Illuminate\Support\Facades\Auth::login($user);
+                $request->session()->regenerate();
+
+                return redirect()->route('club_admin.applications.index');
+            }
+
+            return back()->withErrors([
+                'login_id' => 'Invalid Club Admin credentials.',
+            ])->onlyInput('login_id', 'role');
         }
 
         // System Admin authentication (supports Email or Staff ID)
