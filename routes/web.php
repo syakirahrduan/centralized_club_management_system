@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SystemAdmin\DashboardController;
 use App\Http\Controllers\SystemAdmin\ClubController;
+use App\Http\Controllers\ClubAdmin\MembershipController;
 
 // Public Routes (Login & Register)
 Route::get('/', [AuthController::class, 'showLogin'])->name('login');
@@ -53,4 +54,14 @@ Route::middleware(['auth', 'system.admin'])->prefix('system-admin')->name('syste
     Route::get('/settings', [\App\Http\Controllers\SystemAdmin\SettingsController::class, 'index'])->name('settings.index');
     Route::put('/settings/profile', [\App\Http\Controllers\SystemAdmin\SettingsController::class, 'updateProfile'])->name('settings.profile');
     Route::put('/settings/password', [\App\Http\Controllers\SystemAdmin\SettingsController::class, 'updatePassword'])->name('settings.password');
+});
+
+// Club Admin Protected Routes (Membership Management - Farisha)
+Route::middleware('auth')->prefix('club-admin')->name('club_admin.')->group(function () {
+    Route::get('/applications', [MembershipController::class, 'applications'])->name('applications.index');
+    Route::get('/members', [MembershipController::class, 'index'])->name('members.index');
+    Route::post('/members/{id}/approve', [MembershipController::class, 'approve'])->name('members.approve');
+    Route::post('/members/{id}/reject', [MembershipController::class, 'reject'])->name('members.reject');
+    Route::patch('/members/{id}/status', [MembershipController::class, 'updateStatus'])->name('members.updateStatus');
+    Route::delete('/members/{id}', [MembershipController::class, 'destroy'])->name('members.destroy');
 });
