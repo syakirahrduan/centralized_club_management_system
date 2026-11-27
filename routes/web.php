@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SystemAdmin\DashboardController;
 use App\Http\Controllers\SystemAdmin\ClubController;
+use App\Http\Controllers\Member\ClubDiscoveryController;
 
 // Public Routes (Login & Register)
 Route::get('/', [AuthController::class, 'showLogin'])->name('login');
@@ -53,4 +54,16 @@ Route::middleware(['auth', 'system.admin'])->prefix('system-admin')->name('syste
     Route::get('/settings', [\App\Http\Controllers\SystemAdmin\SettingsController::class, 'index'])->name('settings.index');
     Route::put('/settings/profile', [\App\Http\Controllers\SystemAdmin\SettingsController::class, 'updateProfile'])->name('settings.profile');
     Route::put('/settings/password', [\App\Http\Controllers\SystemAdmin\SettingsController::class, 'updatePassword'])->name('settings.password');
+
+});
+
+// Club Member Routes (Outside system_admin!)
+Route::middleware(['auth'])->prefix('member')->name('member.')->group(function () {
+    Route::get('/clubs', [ClubDiscoveryController::class, 'index'])->name('clubs.index');
+    Route::get('/clubs/{club}', [ClubDiscoveryController::class, 'show'])->name('clubs.show');
+    Route::post('/clubs/{club}/apply', [ClubDiscoveryController::class, 'apply'])->name('clubs.apply');
+    Route::get('/my-clubs', [ClubDiscoveryController::class, 'myClubs'])->name('clubs.my');
+    Route::get('/my-applications', [ClubDiscoveryController::class, 'applications'])->name('clubs.applications');
+    Route::delete('/clubs/{club}/cancel', [ClubDiscoveryController::class, 'cancelApplication'])->name('clubs.cancel');
+    Route::delete('/clubs/{club}/leave', [ClubDiscoveryController::class, 'leaveClub'])->name('clubs.leave');
 });
