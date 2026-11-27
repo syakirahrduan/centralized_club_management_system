@@ -23,4 +23,12 @@ class Club extends Model
         // A club has one admin (User) assigned to it
         return $this->hasOne(\App\Models\User::class, 'club_id')->where('role', 'club_admin');
     }
+
+    // connect club with user
+    public function members()
+    {
+        return $this->belongsToMany(\App\Models\User::class, 'club_user')
+                    ->withPivot('status')
+                    ->withTimestamps();
+    }
 }
